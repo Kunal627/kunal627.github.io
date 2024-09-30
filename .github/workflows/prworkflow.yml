@@ -43,6 +43,11 @@ jobs:
             cp "$html_file" html/
           done
 
+      # Clean up html_output directory after copying HTML files
+      - name: Clean up html_output
+        run: |
+          rm -rf html_output/  # Remove the temporary directory
+
       # Commit and push the converted HTML files to the main branch
       - name: Commit and push changes
         run: |
