@@ -1,4 +1,4 @@
-name: Build and Update Notebooks
+name: Convert Notebooks and Commit HTML
 
 on:
   pull_request:
@@ -28,41 +28,27 @@ jobs:
         run: |
           pip install nbconvert
 
-      # Fetch modified .ipynb files
-      - name: Get modified .ipynb files
-        id: get_modified_notebooks
-        run: |
-          git fetch origin main
-          MODIFIED_FILES=$(git diff --name-only origin/main..HEAD | grep 'notebook/.*\.ipynb' || echo "")
-          echo "::set-output name=files::$MODIFIED_FILES"
-          echo "Modified notebooks: $MODIFIED_FILES"
-
-      # Convert modified .ipynb files to HTML (if any)
-      - name: Convert modified notebooks to HTML
-        if: steps.get_modified_notebooks.outputs.files != ''
+      # Convert all .ipynb files in the 'notebook' folder to HTML
+      - name: Convert all notebooks to HTML
         run: |
           mkdir -p html_output
-          for file in $(git diff --name-only origin/main..HEAD | grep 'notebook/.*\.ipynb'); do
+          for file in notebook/*.ipynb; do
             echo "Converting $file to HTML"
             jupyter nbconvert --to html --output-dir html_output -- "$file"
           done
 
-      # Copy HTML files to htmlnotebook folder without overwriting
-      - name: Copy HTML files to htmlnotebook
+      # Copy HTML files to the htmlnotebook folder without overwriting
+      - name: Copy HTML files to htmlnotebook folder without overwriting
         run: |
           mkdir -p htmlnotebook
-          if [ -d html_output ]; then
-            for html_file in html_output/*.html; do
-              base_html_file=$(basename "$html_file")
-              if [ ! -f htmlnotebook/"$base_html_file" ]; then
-                cp "$html_file" htmlnotebook/
-              else
-                echo "$base_html_file already exists, skipping..."
-              fi
-            done
-          else
-            echo "No HTML files to copy."
-          fi
+          for html_file in html_output/*.html; do
+            base_html_file=$(basename "$html_file")
+            if [ ! -f htmlnotebook/"$base_html_file" ]; then
+              cp "$html_file" htmlnotebook/
+            else
+              echo "$base_html_file already exists, skipping..."
+            fi
+          done
 
       # Commit and push changes to the main branch
       - name: Commit and push changes
