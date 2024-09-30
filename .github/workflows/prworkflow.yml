@@ -1,4 +1,4 @@
-name: Convert Notebooks and Commit HTML
+name: Convert Notebooks and Commit HTML 
 
 on:
   pull_request:
