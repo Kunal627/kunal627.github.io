@@ -53,6 +53,12 @@ jobs:
         run: |
           git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
-          git add html/
-          git commit -m "Convert notebooks to HTML and update html folder"
-          git push origin main
+          git add html/  # Only add the html directory
+          
+          # Check for changes and commit if there are any
+          if ! git diff-index --quiet HEAD; then
+            git commit -m "Convert notebooks to HTML and update html folder"
+            git push origin main
+          else
+            echo "No changes to commit"
+          fi
