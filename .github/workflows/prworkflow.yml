@@ -1,15 +1,13 @@
-name: Convert Notebooks and Commit HTML 
+name: Convert Notebooks and Commit HTML
 
 on:
-  pull_request:
+  # Trigger when a pull request is merged to main or when direct updates are made to the main branch
+  push:
     branches:
       - main
-    types:
-      - closed
 
 jobs:
-  build-and-update-notebooks:
-    if: github.event.pull_request.merged == true
+  convert-and-update:
     runs-on: ubuntu-latest
 
     steps:
@@ -17,19 +15,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Set up Python environment
+      # Set up Python environment for notebook conversion
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
 
-      # Install nbconvert for converting notebooks
+      # Install nbconvert for converting Jupyter notebooks to HTML
       - name: Install nbconvert
         run: |
           pip install nbconvert
 
       # Convert all .ipynb files in the 'notebook' folder to HTML
-      - name: Convert all notebooks to HTML
+      - name: Convert notebooks to HTML
         run: |
           mkdir -p html_output
           for file in notebook/*.ipynb; do
@@ -37,26 +35,19 @@ jobs:
             jupyter nbconvert --to html --output-dir html_output -- "$file"
           done
 
-      # Copy HTML files to the htmlnotebook folder without overwriting
-      - name: Copy HTML files to htmlnotebook folder without overwriting
+      # Ensure that the html folder exists in the repository and copy the HTML files
+      - name: Copy HTML files to html folder
         run: |
-          mkdir -p htmlnotebook
+          mkdir -p html   # Create html folder if it doesn't exist
           for html_file in html_output/*.html; do
-            base_html_file=$(basename "$html_file")
-            if [ ! -f htmlnotebook/"$base_html_file" ]; then
-              cp "$html_file" htmlnotebook/
-            else
-              echo "$base_html_file already exists, skipping..."
-            fi
+            cp "$html_file" html/
           done
 
-      # Commit and push changes to the main branch
+      # Commit and push the converted HTML files to the main branch
       - name: Commit and push changes
         run: |
           git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
-          git checkout main
-          git pull origin main
-          git add htmlnotebook/
-          git commit -m "Add new converted notebooks as HTML"
+          git add html/
+          git commit -m "Convert notebooks to HTML and update html folder"
           git push origin main
