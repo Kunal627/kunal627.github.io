@@ -1,0 +1,68 @@
+name: Build and Update Notebooks
+
+# Trigger on merge to main branch
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+jobs:
+  build-and-update-notebooks:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the code from the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Set up Python to use nbconvert for converting .ipynb files
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      # Install necessary dependencies (nbconvert for converting .ipynb files to HTML)
+      - name: Install nbconvert
+        run: |
+          pip install nbconvert
+
+      # Identify modified .ipynb files in the 'notebook' folder
+      - name: Get list of modified .ipynb files
+        id: modified-notebooks
+        run: |
+          git fetch origin main
+          git diff --name-only origin/main..HEAD | grep 'notebook/.*\.ipynb' || echo "No modified notebooks"
+      
+      # Convert modified .ipynb files to HTML
+      - name: Convert modified notebooks to HTML
+        if: steps.modified-notebooks.outputs.notebooks != ''
+        run: |
+          for file in $(git diff --name-only origin/main..HEAD | grep 'notebook/.*\.ipynb'); do
+            jupyter nbconvert --to html --output-dir html_output -- "$file"
+          done
+
+      # Copy only new HTML files to htmlnotebook folder without overwriting existing files
+      - name: Copy HTML files to htmlnotebook folder without overwriting
+        run: |
+          mkdir -p htmlnotebook
+          for html_file in html_output/*.html; do
+            base_html_file=$(basename "$html_file")
+            if [ ! -f htmlnotebook/"$base_html_file" ]; then
+              cp "$html_file" htmlnotebook/
+            else
+              echo "$base_html_file already exists, skipping..."
+            fi
+          done
+      
+      # Commit and push the changes to main branch
+      - name: Commit and push changes
+        run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+          git checkout main
+          git pull origin main
+          git add htmlnotebook/
+          git commit -m "Add new converted notebooks as HTML"
+          git push origin main
