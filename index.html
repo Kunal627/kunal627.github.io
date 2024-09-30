@@ -1,18 +1,117 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hello World</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Static HTML Page with Index and Author Bio</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Left section for index and author bio */
+    .sidebar {
+      width: 250px;
+      background-color: #f0f0f0;
+      padding: 20px;
+      box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.1);
+      height: 100vh;
+    }
+
+    /* Style for the index section */
+    .index {
+      margin-bottom: 40px;
+    }
+
+    .index h3 {
+      margin-bottom: 10px;
+    }
+
+    .index ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .index ul li {
+      margin-bottom: 8px;
+    }
+
+    .index ul li a {
+      text-decoration: none;
+      color: #007BFF;
+      cursor: pointer;
+    }
+
+    .index ul li a:hover {
+      text-decoration: underline;
+    }
+
+    /* Author bio section */
+    .author-bio {
+      background-color: #e0e0e0;
+      padding: 15px;
+      margin-top: 20px;
+      border-radius: 5px;
+    }
+
+    .author-bio h4 {
+      margin-top: 0;
+    }
+
+    /* Main content section */
+    .content {
+      flex: 1;
+      padding: 20px;
+    }
+
+    .content h2 {
+      margin-top: 0;
+    }
+
+  </style>
 </head>
 <body>
-    <h1>Hello, World!</h1>
-    <p>Welcome to my GitHub Pages site.</p>
-    <a href="./html/test_copy.html">Go to page 2</a>
-</body>
-<body></body>
-    <h1>Hello, World!</h1>
-    <p>Welcome to my GitHub Pages site.</p>
-    <a href="./html/test.html">Go to page 2</a>
+
+  <!-- Left section: Index and author bio -->
+  <div class="sidebar">
+    <div class="index">
+      <h3>Index</h3>
+      <ul>
+        <li><a onclick="loadContent('./html/test.html')">Page 1</a></li>
+        <li><a onclick="loadContent('./html/test_copy.html')">Page 2</a></li>
+        <li><a onclick="loadContent('./html/test.html')">Page 3</a></li>
+      </ul>
+    </div>
+    <div class="author-bio">
+      <h4>Author Bio</h4>
+      <p>John Doe is a web developer with 10 years of experience in front-end technologies. He enjoys teaching and writing technical content.</p>
+    </div>
+  </div>
+
+  <!-- Right section: Main content -->
+  <div class="content">
+    <div id="content-area">
+      <h2>Welcome</h2>
+      <p>Click on the links in the index to view the content.</p>
+    </div>
+  </div>
+
+  <!-- JavaScript to load content dynamically -->
+  <script>
+    function loadContent(page) {
+      fetch(page)
+        .then(response => response.text())
+        .then(data => {
+          document.getElementById('content-area').innerHTML = data;
+        })
+        .catch(error => {
+          document.getElementById('content-area').innerHTML = '<p>Error loading content. Please try again later.</p>';
+        });
+    }
+  </script>
+
 </body>
 </html>
