@@ -1,3 +1,6 @@
+## training time per epoch: 2-3 minutes
+## intel i7-vpro 9th gen 16GB RAM
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
