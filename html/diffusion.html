@@ -7718,6 +7718,25 @@ The mathematical form of the Gaussian distribution is:</p>
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h4 id="Mini-Diffusion-model">Mini Diffusion model<a class="anchor-link" href="#Mini-Diffusion-model">¶</a></h4><p>I have tried to implement a mini diffusion model. The model is based on Unet architecture with the reparameterization trick in the fwd diffusion process. During training, the random timesteps are generated in the range (0, num_steps=500) and passed to the model. The timesteps have a shape (batchsize,), which is resized to (batchsize, input_channels, 1,1) to match the input to downsample blocks. Sinusoidal function is used for the timestep encoding. The encoding is added to the input before downsampling. I have just added the encoding only to downsampling. It can be added to upsampling and bottlneck as well. There are two models one with the timestep encoding aware model and one without.</p>
+<p>Unet - The model is not aware of the which timestep is used to generate noise in fwd diffusion
+DiffModel - Timstep encoding is introduced in downsampling blocks only</p>
+<h5 id="Just-for-the-test!!!">Just for the test!!!<a class="anchor-link" href="#Just-for-the-test!!!">¶</a></h5><p>Hardware used for training
+intel i7-vpro 9th gen 16GB RAM</p>
+<h4 id="Training-time-per-epoch">Training time per epoch<a class="anchor-link" href="#Training-time-per-epoch">¶</a></h4><p>Unet : 30 minutes</p>
+<p>DiffModel with ts encodings: 52 minutes</p>
+<p>ONLY 10 epochs trained.</p>
+<p>Working Code - <a href="https://github.com/Kunal627/kunal627.github.io/tree/main/code">Visit Github</a></p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h4 id="Further-Reading">Further Reading<a class="anchor-link" href="#Further-Reading">¶</a></h4><ul>
 <li>Denoising Diffusion Probabilistic Models - <a href="https://arxiv.org/pdf/2006.11239">https://arxiv.org/pdf/2006.11239</a></li>
 <li>How diffusion models work: the math from scratch  <a href="https://theaisummer.com/diffusion-models/?fbclid=IwAR1BIeNHqa3NtC8SL0sKXHATHklJYphNH-8IGNoO3xZhSKM_GYcvrrQgB0o">https://theaisummer.com/diffusion-models/?fbclid=IwAR1BIeNHqa3NtC8SL0sKXHATHklJYphNH-8IGNoO3xZhSKM_GYcvrrQgB0o</a></li>
