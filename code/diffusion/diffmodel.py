@@ -15,13 +15,28 @@ def sinusoidal_embedding(timesteps, embedding_dim, theta=10000.0):
         torch.Tensor: A tensor of shape (batch_size, embedding_dim) containing the sinusoidal embeddings.
     """
     embed_idx = torch.arange(0, embedding_dim // 2, dtype=torch.float32)
-    base = theta ** (2 * embed_idx / embedding_dim)
+    base = 1.0/ (theta ** (2 * embed_idx / embedding_dim)).unsqueeze(1)
+    embeddings = torch.cat([torch.sin(base), torch.cos(base)], dim=1)
 
-    input = timesteps / base
+    return timesteps.view(-1,1) * embeddings.view(1,embedding_dim)
 
-    embeddings = torch.cat([torch.sin(input), torch.cos(input)], dim=1)
+class TimeStepEmbedding(nn.Module):
+    def __init__(self, embedding_dim=16, out_channels=8, theta = 10000.0):
+        super(TimeStepEmbedding, self).__init__()
+        self.embedding_dim = embedding_dim
+        self.theta = theta
+        self.proj = nn.Sequential(
+            nn.Linear(embedding_dim, embedding_dim * 4),
+            nn.ReLU(),
+            nn.Linear(embedding_dim * 4, out_channels)
+        )
 
-    return embeddings
+    def forward(self, x):
+        x = sinusoidal_embedding(x, self.embedding_dim, self.theta)
+        x = self.proj(x)
+        x = x[:, :, None, None]
+        return x
+
 
 class ConvBlock(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size=3, stride=1, padding=1):
@@ -44,18 +59,20 @@ class DownSampleBlock(nn.Module):
         self.convblk2 = ConvBlock(out_channels, out_channels, kernel_size, stride, padding)
         self.tsembed  = nn.Linear(embedding_dim, out_channels)
         self.pool = pool
+        self.ts_encoder = TimeStepEmbedding(embedding_dim=embedding_dim, out_channels=in_channels)
 
-    def forward(self, x, t=None):
+    def forward(self, x, t):
+        x = x + self.ts_encoder(t)
         if self.pool:
             x = self.maxpool(x)
         out = self.convblk1(x)
         out = self.convblk2(out)
         
         # add timestep embedding
-        if t is None:
-            tsembed = F.silu(self.tsembed(t))
-            tsembed = tsembed[:, :, None, None]
-            out += tsembed
+        #if t is None:
+        #    tsembed = F.silu(self.tsembed(t))
+        #    tsembed = tsembed[:, :, None, None]
+        #    out += tsembed
         return out
     
     
@@ -70,7 +87,7 @@ class UpSampleBlock(nn.Module):
         return out
     
 class DiffModel(nn.Module):
-    def __init__(self, in_channels=3, out_channels=3, embedding_dim=64):
+    def __init__(self, in_channels=3, out_channels=3, embedding_dim=4):
         super(DiffModel, self).__init__()
         
         self.enc1 = DownSampleBlock(in_channels, 64)
@@ -93,9 +110,11 @@ class DiffModel(nn.Module):
         self.dec1 = ConvBlock(128, 64)
         
         self.final_layer = nn.Conv2d(64, out_channels, kernel_size=1)
+
+
         
         
-    def forward(self, x, t=None):
+    def forward(self, x, t):
         e1 = self.enc1(x, t)
         e2 = self.enc2(e1, t)
         e3 = self.enc3(e2, t)
@@ -120,3 +139,8 @@ class DiffModel(nn.Module):
         d1 = self.dec1(up1)
 
         return self.final_layer(d1)
+    
+#moodel = DiffModel()
+#img = torch.rand(4, 3, 32, 32)
+#y = moodel(img, torch.Tensor([0.1, .5, 0.1,0.5]))
+#print(y.shape)
