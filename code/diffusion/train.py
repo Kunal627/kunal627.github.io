@@ -96,4 +96,4 @@ for epoch in range(num_epochs):
 
     # Save the model checkpoint
     print("Saving model checkpoint...")
-    torch.save(model.state_dict(), f"../out/checkpoints/diffusion/unet_diff_model_epoch_{epoch+1}.pt")
+    torch.save(model.state_dict(), f"./out/checkpoints/diffusion/unet_diff_model_epoch_{epoch+1}.pt")  
