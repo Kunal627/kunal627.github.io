@@ -1,0 +1,15 @@
+mlflowrun:
+  name: fcnn_for_additional_features
+  experiment: ECGClassifier
+  description: Test Model
+  uri: http://127.0.0.1:9889
+  parameters:
+    learningrate: 0.001
+    momentum:     0
+    batchsize:   32
+    epoch:        5
+  dataset:
+    train: "diagnostics_top4_train_ds.csv"
+    test:   "diagnostics_top4_test_ds.csv"
+    val:   "diagnostics_top4_val_ds.csv"
+

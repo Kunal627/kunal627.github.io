@@ -1,0 +1,77 @@
+version: '3.8'
+services:
+
+  ftp-server:
+    restart: always
+    image: fauria/vsftpd
+    container_name: ftp_server
+    ports:
+      - "21:21"
+      - "21000-21010:21000-21010"
+    environment:
+
+      FTP_USER_NAME: "mlflowuser"
+      FTP_USER_PASS: "password"
+      FTP_USER: "mlflowuser"
+      FTP_PASS: "password"
+#      - FTP_USER_NAME=${FTP_USER_NAME}
+#      - FTP_USER_PASS=${FTP_USER_PASS}
+#      - FTP_USER=${FTP_USER_NAME}
+#      - FTP_PASS=${FTP_USER_PASS}
+#      FTP_USER_NAME: "/run/secrets/ftp_user"
+#      FTP_USER_PASS: "/run/secrets/ftp_password"
+#      FTP_USER: "/run/secrets/ftp_user"
+#      FTP_PASS: "/run/secrets/ftp_password"
+#    FTP_USER_HOME: "/home/vsftpd/mlflowuser"
+      PASV_ADDRESS: 0.0.0.0
+      PASV_MIN_PORT: 21000
+      PASV_MAX_PORT: 21010
+    volumes:
+      - mlflowdata:/home/vsftpd/mlflowuser
+    networks:
+      - flownet_bridge
+
+  db:
+    restart: always
+    image: mysql/mysql-server:5.7.28
+    container_name: mlflowdb
+    hostname: mlflowdb
+    ports:
+      - "3307:3306"
+    environment:
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - dbvol:/var/lib/mysql
+    networks:
+      - flownet_bridge
+
+  web:
+    restart: always
+    image: mlflow
+    build: 
+      context: .
+      dockerfile: Dockerfile.mlflow
+    container_name: mlflowserver
+    hostname: mlflowserver
+    networks:
+      - flownet_bridge
+    ports:
+      - "9889:9889"
+    command: mlflow server --backend-store-uri mysql+pymysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mlflowdb:3306/${MYSQL_DATABASE} --default-artifact-root ftp://mlflowuser:password@ftp_server/ --host 0.0.0.0 --port 9889
+
+volumes: 
+  dbvol:  
+  mlflowdata:
+
+networks:
+  flownet_bridge:
+    driver: bridge
+
+#secrets:
+#  ftp_user:
+#    file: ./secrets/ftp_user.txt
+#  ftp_pass:
+#    file: ./secrets/ftp_password.txt
