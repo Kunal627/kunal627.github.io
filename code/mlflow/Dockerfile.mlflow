@@ -1,0 +1,5 @@
+FROM python:3.8-slim-buster
+# Install python packages
+WORKDIR /usr/project/mlflow
+COPY mlflow.requirements.txt .
+RUN pip install --no-cache-dir -r mlflow.requirements.txt
