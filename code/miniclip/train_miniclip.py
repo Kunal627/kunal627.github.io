@@ -7,7 +7,8 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 from transformers import BertTokenizer
 from tqdm import tqdm
-from code.miniclip.model import MiniClip
+from model import MiniClip
+import torch.nn.functional as F
 
 batch_size = 128
 sequence_length = 10
@@ -26,9 +27,20 @@ def generate_text_labels(labels):
 def contrastive_loss(image_features, text_features, temperature=0.07):
     image_features = nn.functional.normalize(image_features, dim=-1)
     text_features = nn.functional.normalize(text_features, dim=-1)
-    logits = torch.matmul(image_features, text_features.t()) / temperature
-    labels = torch.arange(logits.size(0)).to(logits.device)
-    return nn.CrossEntropyLoss()(logits, labels)
+    # Compute cosine similarity matrix
+    logits_per_image = image_features @ text_features.T  # (batch_size, batch_size)
+    logits_per_image /= temperature
+    # Labels for contrastive learning
+    batch_size = image_features.size(0)
+    labels = torch.arange(batch_size, device=image_features.device)
+
+    # Cross-entropy loss for image-to-text and text-to-image
+    loss_i2t = F.cross_entropy(logits_per_image, labels)  # Image-to-text loss
+    loss_t2i = F.cross_entropy(logits_per_image.T, labels)  # Text-to-image loss
+    
+    # Average the two losses
+    loss = (loss_i2t + loss_t2i) / 2
+    return loss
 
 
 # Initialize the CLIP model, tokenizer, optimizer
