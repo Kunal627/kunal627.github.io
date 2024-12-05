@@ -1,23 +1,26 @@
-services:
-  openWebUI:
-    image: ghcr.io/open-webui/open-webui:main
-    restart: always
-    ports:
-      - "3000:8080"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    volumes:
-      - openweb-vol:/app/backend/data
+version: '3.8'
 
+services:
   ollama:
     image: ollama/ollama:latest
+    container_name: ollama
+    restart: always
     ports:
-      - "11434:11434"
+      - "11434:11434"  # Exposes the Ollama API on host
     volumes:
-      - ollama-vol:/root/.ollama
+      - ollama-data:/root/.ollama  # Persist data for Ollama
+
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    restart: always
+    ports:
+      - "3000:8080"  # Exposes the Open-WebUI on port 3000 of the host
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434  # Connects to Ollama API
+    volumes:
+      - open-webui-data:/app/backend/data
 
 volumes:
-  ollama-vol:
-    external: true
-  openweb-vol:
-    external: true
+  open-webui-data:
+  ollama-data:
