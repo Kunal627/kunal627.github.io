@@ -41,7 +41,7 @@ Please ensure that your posts follow the [contribution guidelines](link-to-guide
 
 If you have any questions or want to reach out to me directly, you can contact me at:
 
-- **LinkedIn**: [your-profile](www.linkedin.com/in/kunal627)
+- **LinkedIn**: [profile](https://www.linkedin.com/in/kunal627/)
 
 ---
 
