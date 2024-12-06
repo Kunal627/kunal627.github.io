@@ -15,7 +15,7 @@ Welcome to my personal blog hosted on GitHub! This blog is a space for me to sha
 
 ## About
 
-This is my GitHub-based blog where I document my thoughts, experiences, and projects. From tutorials on programming languages to deep dives into algorithms and frameworks, I aim to provide valuable content for developers of all levels. The blog is hosted on GitHub Pages and is built with [Jekyll](https://jekyllrb.com/) and custom themes.
+This is my GitHub-based blog where I document my thoughts, experiences, and projects. From tutorials on programming languages to deep dives into algorithms and frameworks, I aim to provide valuable content for developers of all levels.
 
 ---
 
