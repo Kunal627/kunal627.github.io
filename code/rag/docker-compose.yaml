@@ -21,6 +21,16 @@ services:
     volumes:
       - open-webui-data:/app/backend/data
 
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant
+    restart: always
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_storage:/qdrant/storage
+
 volumes:
   open-webui-data:
   ollama-data:
+  qdrant_storage:
