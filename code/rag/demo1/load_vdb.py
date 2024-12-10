@@ -19,12 +19,12 @@ def main():
         papers = fetch_arxiv_papers(query=Config.ARVIX_QUERY, max_results=Config.ARVIX_MAX_RESULTS)
     else:
         raise ValueError("Invalid source. Please specify 'arxiv' as the source.")
+    
+    final_embed = []
+    final_text = []
 
     for paper in papers:
         print(f"Processing paper {paper.title}")
-
-        final_embed = []
-        final_text = []
 
         title, abstract, url = parse_arxiv_paper(paper)
         print(f"Extracting {title}")
@@ -43,13 +43,15 @@ def main():
         final_embed += embeds
         final_text += text
 
+        print("###########", len(final_embed), len(final_text))
         # create collection
     print("Number of chunks to index", len(final_embed), len(final_text))
-    #create_qdrant_index(vdb_client=qclient, collection_name=Config.COLLECTION_NAME)
+    create_qdrant_index(vdb_client=qclient, collection_name=Config.COLLECTION_NAME)
 
-    #index_chunks_in_qdrant(final_text, final_embed, vdb_client=qclient)
+    index_chunks_in_qdrant(final_text, final_embed, vdb_client=qclient)
     print("Indexing complete")
 
+    print("Total vectors inserted", get_vector_count(Config.COLLECTION_NAME, qclient))
 
 if __name__ == "__main__":
     main()

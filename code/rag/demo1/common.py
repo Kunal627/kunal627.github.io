@@ -86,10 +86,16 @@ def index_chunks_in_qdrant(chunks, embeddings, vdb_client, collection_name=Confi
 
 
 def retrieve_context(query_embed, vdb_client):
-
+    #print("query collection", Config.COLLECTION_NAME)
     hits = vdb_client.query_points(
         collection_name=Config.COLLECTION_NAME,
         query=query_embed,
         limit=10).points
 
     return hits
+
+# Get the count of vectors in the collection
+def get_vector_count(collection_name: str, vdb_client) -> int:
+    count_response = vdb_client.count(collection_name=collection_name)
+    return count_response.count
+
