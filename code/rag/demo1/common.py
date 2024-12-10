@@ -63,6 +63,7 @@ def create_qdrant_index(vdb_client, collection_name=Config.COLLECTION_NAME):
     existing_coll = [collection.name for collection in collections.collections]
     print(f"Existing collections {existing_coll}")
     if collection_name not in existing_coll:
+        print("creating collection::", Config.COLLECTION_NAME)
         vdb_client.create_collection(
             collection_name=collection_name,
             vectors_config=VectorParams(size=2048, distance="Cosine")  # tinyllama embed dimension

@@ -37,16 +37,17 @@ def main():
         chunks = chunk_text_by_length(full_text, 500)
 
         embeds, text = get_embeddings(model="tinyllama", chunks=chunks, llm_client=oclient)
-        #print(embeds[0], text[0])
+        print(">>>>>>>>>>>", len(embeds), len(text))
 
         # list concatenation
         final_embed += embeds
         final_text += text
 
         # create collection
-    create_qdrant_index(vdb_client=qclient)
+    print("Number of chunks to index", len(final_embed), len(final_text))
+    #create_qdrant_index(vdb_client=qclient, collection_name=Config.COLLECTION_NAME)
 
-    index_chunks_in_qdrant(final_text, final_embed, vdb_client=qclient)
+    #index_chunks_in_qdrant(final_text, final_embed, vdb_client=qclient)
     print("Indexing complete")
 
 
