@@ -5,6 +5,8 @@ import pymupdf
 from qdrant_client.models import VectorParams, PointStruct
 from config import Config
 import requests
+import re
+from transformers import AutoTokenizer, LlamaTokenizer, LlamaTokenizerFast
 
 # Function to fetch papers from arXiv
 def fetch_arxiv_papers(query=Config.ARVIX_QUERY, max_results=Config.ARVIX_MAX_RESULTS):
@@ -31,20 +33,31 @@ def extract_text_from_pdf(pdf_url):
         text += page.get_text()  # Extract text from each page
     return text
 
-def chunk_text_by_length(text, chunk_size):
+def chunk_text_by_length(text, chunk_size, overlap):
     """
-    Splits the given text into smaller chunks of a specified character length.
-
-    Args:
-    - text (str): The input text to chunk.
-    - chunk_size (int): The maximum number of characters per chunk.
-
-    Returns:
-    - list of str: A list of text chunks.
-    """
-    # Split text into chunks of the specified size
-    chunks = [text[i:i+chunk_size] for i in range(0, len(text), chunk_size)]
+    Chunk text into manageable sizes for TinyLlama or similar models.
     
+    Args:
+    - text: The input text to be chunked.
+    - model_name: Name or path to the tokenizer (e.g., TinyLlama tokenizer).
+    - chunk_size: Maximum number of tokens per chunk.
+    - overlap: Number of overlapping tokens between chunks.
+    
+    Returns:
+    - List of chunks (strings).
+    """
+    # Load the tokenizer
+    tokenizer = LlamaTokenizerFast.from_pretrained("hf-internal-testing/llama-tokenizer")
+    # Tokenize the input text
+    tokens = tokenizer.encode(text)
+    
+    chunks = []
+    for i in range(0, len(tokens), chunk_size - overlap):
+        # Create chunks with overlap
+        chunk_tokens = tokens[i:i + chunk_size]
+        chunk_text = tokenizer.decode(chunk_tokens, skip_special_tokens=True)
+        chunks.append(chunk_text)
+
     return chunks
 
 def get_embeddings(model, chunks, llm_client):
@@ -99,3 +112,24 @@ def get_vector_count(collection_name: str, vdb_client) -> int:
     count_response = vdb_client.count(collection_name=collection_name)
     return count_response.count
 
+def preprocess(text):
+    patterns = [
+        r"\bReferences\b",  # Matches 'References' as a standalone word
+        r"\bBibliography\b",  # Matches 'Bibliography' as a standalone word
+    ]
+    # Combine patterns and locate the start of the references section
+    pattern = re.compile('|'.join(patterns), re.IGNORECASE)
+    match = pattern.search(text)
+    if match:
+        # Remove everything from the start of the references section
+        text = text[:match.start()]
+    text = text.lower()
+    text = text.replace("\n", " ")
+    text = ' '.join(text.split())
+    url_pattern = r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+"
+    reference_pattern = r"\[\d+(?:\s*-\s*\d+)?(?:\s*,\s*\d+)*\]"
+    # Replace URLs with an empty string
+    text = re.sub(url_pattern, '', text)
+    text = re.sub(reference_pattern, '', text)
+
+    return text

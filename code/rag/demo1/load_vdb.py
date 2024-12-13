@@ -24,17 +24,28 @@ def main():
     final_text = []
 
     for paper in papers:
+        print("===============================")
         print(f"Processing paper {paper.title}")
+        print("===============================")
 
         title, abstract, url = parse_arxiv_paper(paper)
         print(f"Extracting {title}")
 
         pdf_text = extract_text_from_pdf(url)
+        #print(pdf_text)
 
-        full_text = abstract + "\n\n" + pdf_text
+        print("After preprocessing")
+        pdf_text = preprocess(pdf_text)
+        #print(pdf_text)
+
+        full_text = abstract + " " + pdf_text
 
         print(f"Chunking text into smaller pieces.")
-        chunks = chunk_text_by_length(full_text, 500)
+        chunks = chunk_text_by_length(full_text, Config.CHUNK_SIZE, Config.CHUNK_OVERLAP)
+        print(">>>>>>> printing chunks  >>>>>>>>>>>>>>>>>>>>>")
+        for i, c in enumerate(chunks):
+            print(f"############# chunk {i}")
+            print(c)
 
         embeds, text = get_embeddings(model="tinyllama", chunks=chunks, llm_client=oclient)
         print(">>>>>>>>>>>", len(embeds), len(text))
@@ -43,6 +54,9 @@ def main():
         final_embed += embeds
         final_text += text
 
+        print("==============================================")
+        print(f"processed paper {paper.title}")
+        print("==============================================")
         print("###########", len(final_embed), len(final_text))
         # create collection
     print("Number of chunks to index", len(final_embed), len(final_text))
