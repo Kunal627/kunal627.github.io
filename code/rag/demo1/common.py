@@ -10,12 +10,34 @@ from transformers import AutoTokenizer, LlamaTokenizer, LlamaTokenizerFast
 
 # Function to fetch papers from arXiv
 def fetch_arxiv_papers(query=Config.ARVIX_QUERY, max_results=Config.ARVIX_MAX_RESULTS):
+    """
+    Fetch papers from arXiv using the arxiv Python library.
+
+    Args:
+    - query: The query string to search for papers on arXiv.
+    - max_results: The maximum number of papers to fetch.
+
+    Returns:
+    - The Result objects yielded by Client.results include metadata about each paper and helper methods for downloading their content.
+    """
     search = arxiv.Search(query=query, max_results=max_results)
     papers = search.results()
     return papers
 
 # Function to parse and extract the title and abstract from the arXiv paper
 def parse_arxiv_paper(paper):
+    """
+    Parse and extract the title, abstract, and PDF URL from an arXiv paper.
+
+    Args:
+    - paper: The arXiv paper object.
+    
+    Returns:
+    - title: The title of the paper.
+    - abstract: The abstract of the paper.
+    - pdf_url: The URL to download the PDF of the paper.
+    
+    """
     title = paper.title
     abstract = paper.summary
     pdf_url = paper.pdf_url  # PDF URL for extracting content from the PDF
@@ -23,6 +45,16 @@ def parse_arxiv_paper(paper):
 
 # Function to extract text from a PDF using PyMuPDF
 def extract_text_from_pdf(pdf_url):
+    """
+    Extract text from a PDF using PyMuPDF (fitz).
+    
+    Args:
+    - pdf_url: The URL to download the PDF.
+    
+    Returns:
+    - The extracted text from the PDF.
+    """
+
     # Open the PDF using PyMuPDF (fitz)
     print(f"Extracting text from PDF: {pdf_url}")
     r = requests.get(pdf_url)
@@ -61,6 +93,18 @@ def chunk_text_by_length(text, chunk_size, overlap):
     return chunks
 
 def get_embeddings(model, chunks, llm_client):
+    """
+    Get embeddings for the chunks of text using the specified model.
+    
+    Args:
+    - model: The model name or path.
+    - chunks: List of text chunks.
+    - llm_client: The LlamaClient object.
+    
+    Returns:
+    - List of embeddings.
+    - List of text chunks.
+    """
 
     embed = []
     text = []
@@ -72,6 +116,17 @@ def get_embeddings(model, chunks, llm_client):
 
 
 def create_qdrant_index(vdb_client, collection_name=Config.COLLECTION_NAME):
+    """
+    Create a collection in Qdrant for indexing the embeddings.
+    
+    Args:
+    - vdb_client: The Qdrant client object.
+    - collection_name: The name of the collection to be created.
+    
+    Returns:
+    - None
+    """
+
     collections = vdb_client.get_collections()
     existing_coll = [collection.name for collection in collections.collections]
     print(f"Existing collections {existing_coll}")
@@ -85,6 +140,18 @@ def create_qdrant_index(vdb_client, collection_name=Config.COLLECTION_NAME):
 
 # Function to index the chunks and their embeddings into Qdrant
 def index_chunks_in_qdrant(chunks, embeddings, vdb_client, collection_name=Config.COLLECTION_NAME):
+    """
+    Index the chunks and their embeddings into Qdrant.
+    
+    Args:
+    - chunks: List of text chunks.
+    - embeddings: List of embeddings corresponding to the chunks.
+    - vdb_client: The Qdrant client object.
+    - collection_name: The name of the collection in Qdrant.
+    
+    Returns:
+    - None
+    """
     points = []
     for i, (chunk, embedding) in enumerate(zip(chunks, embeddings)):
         point = PointStruct(
@@ -99,6 +166,16 @@ def index_chunks_in_qdrant(chunks, embeddings, vdb_client, collection_name=Confi
 
 
 def retrieve_context(query_embed, vdb_client):
+    """
+    Retrieve the context from Qdrant using the query embedding.
+    
+    Args:
+    - query_embed: The query embedding.
+    - vdb_client: The Qdrant client object.
+    
+    Returns:
+    - List of hits (points) from Qdrant.
+    """
     #print("query collection", Config.COLLECTION_NAME)
     hits = vdb_client.query_points(
         collection_name=Config.COLLECTION_NAME,
@@ -113,6 +190,8 @@ def get_vector_count(collection_name: str, vdb_client) -> int:
     return count_response.count
 
 def preprocess(text):
+    """
+    Preprocess the text by removing URLs, references, and converting to lowercase."""
     patterns = [
         r"\bReferences\b",  # Matches 'References' as a standalone word
         r"\bBibliography\b",  # Matches 'Bibliography' as a standalone word
