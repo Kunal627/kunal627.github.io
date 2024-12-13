@@ -7522,10 +7522,7 @@ a.anchor-link {
 <li><a href="#setting-up-a-local-llm">Setting Up a Local LLM</a></li>
 <li><a href="#simple-prompt-and-model-chain">Simple Prompt and model chain</a></li>
 <li><a href="#setup-vector-db">Setup Vector DB</a></li>
-<li><a href="#building-a-basic-rag-agent">Building a Basic RAG Agent</a></li>
-<li><a href="#integrating-langchain-with-llms">Integrating LangChain with LLMs</a></li>
-<li><a href="#advanced-rag-agent-features">Advanced RAG Agent Features</a></li>
-<li><a href="#final-project-complete-rag-agent">Final Project: Complete RAG Agent</a></li>
+<li><a href="#building-a-basic-rag-agent">Building a Basic RAG Agent using arxiv papers</a></li>
 </ol>
 <hr/>
 <h2 id="Introduction-to-LangChain-and-RAG">Introduction to LangChain and RAG<a class="anchor-link" href="#Introduction-to-LangChain-and-RAG">¶</a></h2><p>I will not write a post on this as there are lots of resources available on web. <a href="https://python.langchain.com/docs/introduction/">langchain</a></p>
@@ -7551,6 +7548,14 @@ a.anchor-link {
 <li>All the examples are taken (from)[<a href="https://qdrant.tech/documentation/beginner-tutorials/">https://qdrant.tech/documentation/beginner-tutorials/</a>]</li>
 </ul>
 <p><strong>Python file</strong>: <a href="https://github.com/Kunal627/kunal627.github.io/blob/main/code/rag/vecdb_setup.ipynb">vecdb_setup</a></p>
+<h2 id="Building-a-Basic-RAG-Agent-using-arxiv-papers">Building a Basic RAG Agent using arxiv papers<a class="anchor-link" href="#Building-a-Basic-RAG-Agent-using-arxiv-papers">¶</a></h2><p>Build a simple RAG agent using Lang Chain to anwswer questions on arxiv papers</p>
+<h3 id="Key-Steps:">Key Steps:<a class="anchor-link" href="#Key-Steps:">¶</a></h3><ul>
+<li>Download papers from arxiv</li>
+<li>Extract text from pdfs, preprocess and chunk the documents</li>
+<li>Generate embeddings for the chunks and insert into Vector db</li>
+<li>Invoke a tinyllama chain with a prompt</li>
+</ul>
+<p><strong>Python file</strong>: <a href="https://github.com/Kunal627/kunal627.github.io/blob/main/code/rag/demo1/readme.md">arxiv.ipynb</a></p>
 </div>
 </div>
 </div>
