@@ -24,7 +24,9 @@ jobs:
       # Install nbconvert for converting Jupyter notebooks to HTML
       - name: Install nbconvert
         run: |
-          pip install nbconvert mistune<3.1.0
+          pip install nbconvert 
+          pip uninstall -y mistune
+          pip install mistune==3.0.2
 
       # Convert all .ipynb files in the 'notebook' folder to HTML
       - name: Convert notebooks to HTML
