@@ -24,7 +24,8 @@ jobs:
       # Install nbconvert for converting Jupyter notebooks to HTML
       - name: Install nbconvert
         run: |
-          pip install nbconvert
+          python -m pip install --upgrade pip
+          pip install nbconvert jupyter ipython pygments
 
       # Convert all .ipynb files in the 'notebook' folder to HTML
       - name: Convert notebooks to HTML
