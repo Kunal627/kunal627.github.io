@@ -7531,11 +7531,11 @@ a.anchor-link {
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="c1"># diagram.py</span>
-<span class="kn">from</span> <span class="nn">diagrams</span> <span class="kn">import</span> <span class="n">Diagram</span>
-<span class="kn">from</span> <span class="nn">diagrams.aws.compute</span> <span class="kn">import</span> <span class="n">EC2</span>
-<span class="kn">from</span> <span class="nn">diagrams.aws.database</span> <span class="kn">import</span> <span class="n">RDS</span>
-<span class="kn">from</span> <span class="nn">diagrams.aws.network</span> <span class="kn">import</span> <span class="n">ELB</span>
-<span class="kn">from</span> <span class="nn">diagrams.aws.network</span> <span class="kn">import</span> <span class="n">VPC</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">diagrams</span><span class="w"> </span><span class="kn">import</span> <span class="n">Diagram</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">diagrams.aws.compute</span><span class="w"> </span><span class="kn">import</span> <span class="n">EC2</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">diagrams.aws.database</span><span class="w"> </span><span class="kn">import</span> <span class="n">RDS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">diagrams.aws.network</span><span class="w"> </span><span class="kn">import</span> <span class="n">ELB</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">diagrams.aws.network</span><span class="w"> </span><span class="kn">import</span> <span class="n">VPC</span>
 
 <span class="k">with</span> <span class="n">Diagram</span><span class="p">(</span><span class="s2">"VPC"</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">diag</span><span class="p">:</span>
     <span class="n">VPC</span><span class="p">(</span><span class="s2">"vpc"</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="n">EC2</span><span class="p">(</span><span class="s2">"ec2"</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="n">ELB</span><span class="p">(</span><span class="s2">"elb"</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="n">RDS</span><span class="p">(</span><span class="s2">"rds"</span><span class="p">)</span>
