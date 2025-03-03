@@ -166,3 +166,7 @@ cython_debug/
 
 *.secrets
 agent/
+minibert/
+deepseek/
+merges.txt
+vocab.txt
